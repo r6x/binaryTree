@@ -1,0 +1,179 @@
+// BinaryT.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
+#include "pch.h" 
+#include <string> 
+#include <iostream> 
+using namespace std;
+template <class T> class BinaryTree {
+
+public:
+	BinaryTree() {
+	}
+	struct  element {
+		int key;
+		element *left;
+		element *right;
+	};
+	element *root;//Корень
+
+	void deleteALL() {
+		clear(root);
+	}
+	void printt() {
+		treeprint(root);
+	}
+	void insert(int key) {
+		element* previous = root;
+		while (true) {
+			if (previous == nullptr) {
+				root = create_node(key);
+				return;
+			}
+			if (key > (previous->key)) {
+				if (previous->right == nullptr) {
+					previous->right = create_node(key);
+					return;
+				}
+				previous = previous->right;
+			}
+			if (key < (previous->key))
+			{
+				if (previous->left == nullptr)
+				{
+					previous->left = create_node(key);
+					return;
+				}
+				previous = previous->left;
+			}
+			if (key == (previous->key))
+			{
+				cout << "This element already exists" << endl;
+				return;
+			}
+		}
+	}
+	void deleteElem(int key) {
+		bool delEl = false;
+		element* current=root;
+		current = del(root, key, delEl);
+	}
+private:
+	void treeprint(element *root) {
+		element *temp = root;
+		if (root != NULL) {
+			cout << root->key << " ";
+			treeprint(root->left);
+			treeprint(root->right);
+		}
+	}
+	void clear(element* node) {
+		if (node != NULL) {
+			node->key = NULL;
+			clear(node->left);
+			clear(node->right);
+			node = NULL;
+		}
+	}
+	element* create_node(int key) {
+		element* current = new element();
+		current->key = key;
+		return current;
+	}
+	element* del(element* previous, int key, bool &deleted) {
+		bool dell;
+		if (previous == NULL)
+		{
+			deleted = false;
+			return(previous);
+		}
+		if (key < previous->key)
+		{
+			previous->left = del(previous->left, key, dell);
+			deleted = dell;
+			return(previous);
+		}
+		if (key > previous->key)
+		{
+			previous->right = del(previous->right, key, dell);
+			deleted = dell;
+			return(previous);
+		}
+		//первый случай
+		if (previous->right == nullptr && previous->left == nullptr)
+		{
+			delete previous;
+			deleted = true;
+			return(nullptr);
+		}
+		//второй случай
+		if (previous->left == nullptr)
+		{
+			element *x = previous->right;
+			delete previous;
+			deleted = true;
+			return(x);
+		}
+		if (previous->right == nullptr)
+		{
+			element *x = previous->left;
+			delete previous;
+			deleted = true;
+			return(x);
+		}
+		//3 случай
+		previous->right = supp_del(previous->right, previous);
+		deleted = true;
+		return(previous);
+	}
+	element* supp_del(element* gde_ishem, element* save)//поиск узла замещения
+	{
+		if (gde_ishem->left != NULL)
+		{
+			gde_ishem->left = supp_del(gde_ishem->left, save);
+			return(gde_ishem);
+		}
+		save->key = gde_ishem->key;
+
+		element *x = gde_ishem->right;
+		delete gde_ishem;
+		return(x);
+	}
+};
+
+int main()
+{
+	setlocale(LC_ALL,"rus");
+	BinaryTree<int> tree1;
+	tree1.insert(10);
+	tree1.insert(5);
+	tree1.insert(3);
+	tree1.insert(7);
+	tree1.insert(14);
+	tree1.insert(12);
+	tree1.insert(15);
+	cout << endl<<"t->L->R:"<<endl;
+	tree1.printt();
+	cout<<endl << "--------------------------------------------" << endl;
+	tree1.deleteElem(10);
+	cout << "Удалим корень: " << endl;
+	tree1.printt();
+	cout <<endl<< "---------------------------------------------" << endl;
+	tree1.deleteALL();
+
+
+}
+
+//методы:
+/*
+Публичные:
+deleteAll(); - удаляет все дерево, ничего не принимает, ничего не возвращает
+printt();//вызывает treeprint, ничего не принимает, ничего не возвращает
+insert();//вставляет элемент в дерево, принимает на вход значение, ничего не возвращает
+deleteElem();//вызывает del, принимает на вход значение, ничего не возвращает
+
+Приватные:
+treeprint();//печатате дерево в следующем порядке: t->L->R,, принимает на вход указатель на корень
+createnode();//создает новый элемент дерева с заданным значением, принимает на вход значение, возвращает созданный элемент
+clear();//удаляет дерево, принимает на вход указатель на корень, ничего не возвращает
+del();//удаляет элемент по значению, принимает на вход указатель на предыдущий элемент, значение по которому надо удалить, флаг удаления, возвращает указатель на корень
+supdel();//ищет узел замещения при 3 случае удаления, принимает на вход указатель на ветку где нужно искать узел замещения и указатель на элемент куда надо этот узел замещения поставить, возвращает указатель на элемент
+*/
